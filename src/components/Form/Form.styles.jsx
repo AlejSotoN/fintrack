@@ -3,8 +3,6 @@ import styled from 'styled-components';
 export const StyledForm = styled.form`
 	display: flex;
 	flex-direction: column;
-	width: calc(400px * 0.8);
-	height: calc(812px * 0.8);
 	align-items: center;
 	justify-content: center;
 	background: linear-gradient(
