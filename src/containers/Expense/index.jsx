@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Form } from '../../components/Form';
 import { Input, CurrencyButton } from '../../components/Input';
 import { StyledDiv } from '../../components/Input/Input.styles';
@@ -7,23 +7,6 @@ import { Textarea } from '../../components/Textarea';
 import { Button } from '../../components/Button';
 import { Text } from '../Main/Main.styles';
 import { useAPI } from '../../hooks/useAPI';
-
-const categories = [
-	{ value: 'Alojamiento', label: 'Alojamiento' },
-	{ value: 'Comida', label: 'Comida' },
-	{ value: 'Viajes', label: 'Viajes' },
-	{ value: 'Bienestar', label: 'Bienestar' },
-	{ value: 'Salud', label: 'Salud' },
-	{
-		value: 'Ocio y Entretenimiento (salidas y eventos)',
-		label: 'Ocio y Entretenimiento',
-	},
-	{ value: 'Transporte (taxis)', label: 'Transporte' },
-	{ value: 'Bienes materiales (shopping)', label: 'Bienes Materiales' },
-	{ value: 'Prestamos', label: 'Prestamos e Inversiones' },
-	{ value: 'Familia', label: 'Familia' },
-	{ value: 'Servicios / suscripciones', label: 'Servicios / suscripciones' },
-];
 
 const paymentMethods = [
 	{ value: 'Regions', label: 'Regions' },
@@ -45,9 +28,14 @@ export function Expenses() {
 		dollar: 'USD',
 		peso: 'COP',
 	};
+
 	const [activeCurrency, setActiveCurrency] = useState(currencies.dollar);
 	const [loading, setLoading] = useState(false);
-	const { submitExpense } = useAPI();
+	const [categories, setCategories] = useState([]);
+	const categoryOptions = categories.map((cat) => {
+		return { value: cat.id, label: cat.name };
+	});
+	const { submitExpense, getCategories } = useAPI();
 	function actualCurrency() {
 		if (activeCurrency === currencies.dollar)
 			setActiveCurrency(currencies.peso);
@@ -77,7 +65,8 @@ export function Expenses() {
 		const originalAmount = Number(expense);
 		const isDollar = activeCurrency === currencies.dollar;
 		const dataToPost = {
-			category: category.value,
+			category_id: category.value,
+			category: category.label,
 			expense: isDollar
 				? originalAmount
 				: Number((originalAmount / 4000).toFixed(2)),
@@ -98,6 +87,16 @@ export function Expenses() {
 				setLoading(false);
 			});
 	};
+
+	useEffect(() => {
+		if (!categories.length) {
+			getCategories().then(({ data: { categories: cats } }) => {
+				console.log({ cats });
+				setCategories(cats);
+			});
+		}
+	});
+
 	return (
 		<Form
 			onSubmit={(e) => {
@@ -108,7 +107,7 @@ export function Expenses() {
 			<SelectComp
 				defaultValue={category}
 				value={category}
-				options={categories}
+				options={categoryOptions}
 				onChange={(t) => {
 					setCategory(t);
 				}}

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAPI } from '../../hooks/useAPI';
 import {
 	BudgetAmount,
@@ -9,74 +9,94 @@ import {
 	BudgetTitle,
 } from './Budget.styles';
 
-const budgets = [
-	{
-		amount: 1000,
-		spent: 100,
-		category: 'Food',
-	},
-	{
-		amount: 300,
-		spent: 50,
-		category: 'Entertainment',
-	},
-	{
-		amount: 500,
-		spent: 400,
-		category: 'Travel',
-	},
-	{
-		amount: 100,
-		spent: 150,
-		category: 'Clothes',
-	},
-	{
-		amount: 500,
-		spent: 100,
-		category: 'Health',
-	},
-];
-
 export function Budget() {
+	const [budgets, setBudgets] = useState([]);
 	const { getBudgets, loading } = useAPI();
 	function getColorBySpentAmount(spent, total) {
 		const percentage = (spent / total) * 100;
 		if (percentage < 80) {
-			return 'green';
+			return '#6dde74';
 		}
 		if (percentage < 100) {
 			return 'orange';
 		}
-		return 'red';
+		return '#cf3232';
 	}
 
+	const loadBudgets = useCallback(
+		function () {
+			if (!budgets.length && !loading) {
+				getBudgets()
+					.then((res) => {
+						const data = res?.data;
+						setBudgets(data.budgets);
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+			}
+		},
+		[budgets, getBudgets, loading],
+	);
 	useEffect(() => {
 		console.log('hey');
-		getBudgets().then((res) => {
-			const data = res?.data;
-			console.log(data);
-		});
-	}, []);
+		loadBudgets();
+	}, [loadBudgets]);
+
+	const totalAmount = budgets.reduce((acc, { amount }) => acc + amount, 0);
+	const totalSpent = budgets.reduce((acc, { spent }) => acc + spent, 0);
+
 	return (
 		<BudgetContainer>
 			<BudgetTitle>Budget</BudgetTitle>
 
-			<BudgetList>
-				{budgets.map(({ amount, spent, category }, index) => {
-					return (
-						<BudgetItem key={index}>
-							<BudgetItemTitle>{category}</BudgetItemTitle>
+			{!loading && (
+				<>
+					<BudgetItem fullWidth>
+						<BudgetItemTitle>Total</BudgetItemTitle>
 
-							<BudgetAmount>
-								<BudgetAmount color={getColorBySpentAmount(spent, amount)}>
-									{spent}
-								</BudgetAmount>
-								/ {amount}
+						<div
+							style={{
+								display: 'flex',
+								width: '100%',
+								justifyContent: 'space-between',
+							}}
+						>
+							<BudgetAmount style={{ textAlign: 'left' }}>
+								Remaining: {(totalAmount - totalSpent).toFixed(2)}
 							</BudgetAmount>
-						</BudgetItem>
-					);
-				})}
-			</BudgetList>
+							<BudgetAmount>
+								<BudgetAmount
+									color={getColorBySpentAmount(totalSpent, totalAmount)}
+								>
+									{totalSpent.toFixed(2)}
+								</BudgetAmount>
+								/ {totalAmount}
+							</BudgetAmount>
+						</div>
+					</BudgetItem>
+					<BudgetList>
+						{budgets.map(
+							({ amount, spent, category_name: category }, index) => {
+								return (
+									<BudgetItem key={index}>
+										<BudgetItemTitle>{category}</BudgetItemTitle>
+										<BudgetAmount>
+											<BudgetAmount
+												color={getColorBySpentAmount(spent, amount)}
+											>
+												{spent}
+											</BudgetAmount>{' '}
+											/ {amount}
+										</BudgetAmount>
+									</BudgetItem>
+								);
+							},
+						)}
+					</BudgetList>
+				</>
+			)}
+			{!!loading && <BudgetTitle>Loading...</BudgetTitle>}
 		</BudgetContainer>
 	);
 }

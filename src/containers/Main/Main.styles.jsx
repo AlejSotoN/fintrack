@@ -2,11 +2,25 @@ import styled from 'styled-components';
 
 export const MainContainer = styled.div`
 	display: flex;
-	padding: 2rem;
-	justify-content: center;
 	flex-direction: column;
 	align-items: center;
-	gap: 1rem;
+	height: auto;
+	margin: auto;
+	box-sizing: border-box;
+`;
+
+export const PageContent = styled.div`
+	display: flex;
+	padding: 4rem;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	gap: 2rem;
+	box-sizing: border-box;
+	@media screen and (max-width: 758px) {
+		padding: 6px;
+	}
 `;
 
 export const Title = styled.div`

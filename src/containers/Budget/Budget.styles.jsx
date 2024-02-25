@@ -4,9 +4,6 @@ export const BudgetContainer = styled.div`
 	flex-direction: column;
 	display: flex;
 	align-items: center;
-
-	min-width: 20rem;
-	width: 100%;
 `;
 
 export const BudgetTitle = styled.h1`
@@ -17,8 +14,16 @@ export const BudgetList = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-direction: column;
+	flex-direction: row;
 	width: 100%;
+	max-height: 100%;
+	padding-top: 12px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	flex-wrap: wrap;
+	@media screen and (max-width: 758px) {
+		gap: 12px;
+	}
+	box-sizing: border-box;
 `;
 
 export const BudgetItem = styled.div`
@@ -28,19 +33,25 @@ export const BudgetItem = styled.div`
 	flex-direction: column;
 	margin: 1rem;
 	padding: 1rem;
-	background: linear-gradient(
-		120deg,
-		rgba(178, 161, 214, 0.2) 19.88%,
-		rgba(79, 170, 190, 0.2) 123.6%
-	);
+	background: ${({ theme: { gradient } }) => gradient.main.background};
 	border-radius: 10px;
-	width: 70%;
+	width: ${({ fullWidth }) => (fullWidth ? '100%' : '20rem')};
+	min-height: 3rem;
+	gap: 4px;
+	@media screen and (max-width: 758px) {
+		width: ${({ fullWidth }) => (fullWidth ? '100%' : '10rem')};
+		margin: 0;
+	}
+	box-sizing: border-box;
 `;
 
 export const BudgetItemTitle = styled.span`
-	font-size: 1.25rem;
+	font-size: 1.1rem;
 	width: 100%;
 	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow-x: hidden;
 `;
 
 export const BudgetAmount = styled.span`

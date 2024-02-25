@@ -1,4 +1,4 @@
-import { Axios } from 'axios';
+import Axios from 'axios';
 import { useState } from 'react';
 
 export const API_URL = 'https://fintrack-376102.rj.r.appspot.com/api';
@@ -20,7 +20,20 @@ export function useAPI() {
 	async function getBudgets() {
 		try {
 			setLoading(true);
-			const res = await Axios.get(`${API_URL}/budgets`);
+			console.log('getting budgets');
+			const res = await Axios.get(`${API_URL}/budget`);
+			console.log({ res });
+			setLoading(false);
+			return res;
+		} catch (e) {
+			setError(e);
+		}
+	}
+
+	async function getCategories() {
+		try {
+			setLoading(true);
+			const res = await Axios.get(`${API_URL}/categories`);
 			setLoading(false);
 			return res;
 		} catch (e) {
@@ -33,5 +46,6 @@ export function useAPI() {
 		loading,
 		submitExpense,
 		getBudgets,
+		getCategories,
 	};
 }
